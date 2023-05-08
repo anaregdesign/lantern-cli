@@ -156,7 +156,7 @@ func (e *Executor) Execute(ctx context.Context, query string) (string, error) {
 				return "", ErrPutVertex
 			}
 			if err := e.Client.PutVertex(ctx, key, value, time.Duration(ttl)*time.Second); err != nil {
-				return "", ErrPutVertex
+				return "", err
 			}
 		default:
 			return "", ErrPutVertex
