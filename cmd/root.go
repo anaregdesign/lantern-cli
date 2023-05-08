@@ -4,9 +4,12 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
+	"github.com/manifoldco/promptui"
 	"log"
 	"os"
 
+	"github.com/anaregdesign/lantern/client"
 	"github.com/spf13/cobra"
 )
 
@@ -28,8 +31,34 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Printf("%s:%d", host, port)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cli, err := client.NewLantern(host, port)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			err := cli.Close()
+			log.Fatal(err)
+		}()
+
+		for {
+			prompt := promptui.Prompt{
+				Label: ">",
+			}
+
+			result, err := prompt.Run()
+			if err != nil {
+				return err
+			}
+
+			switch result {
+			case "exit":
+				return nil
+
+			default:
+				fmt.Printf("You choose %q\n", result)
+			}
+		}
 	},
 }
 
