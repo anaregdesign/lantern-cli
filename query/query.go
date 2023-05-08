@@ -20,11 +20,11 @@ var ErrPutVertex = errors.New("error, Usage: put vertex <key> <value> <ttl>")
 var ErrAddEdge = errors.New("error, Usage: add edge <from> <to> <ttl>")
 var ErrGetGraph = errors.New("error, Usage: get graph <neighbor|spt_cost|spt_relevance> <seed> <step> <k> <tfidf>")
 
-type QueryExecutor struct {
-	cli *client.Lantern
+type Executor struct {
+	Client *client.Lantern
 }
 
-func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, error) {
+func (e *Executor) Execute(ctx context.Context, query string) (string, error) {
 	s := strings.ToLower(query)
 	params := strings.Split(s, " ")
 
@@ -40,7 +40,7 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 			}
 
 			key := params[2]
-			v, err := e.cli.GetVertex(ctx, key)
+			v, err := e.Client.GetVertex(ctx, key)
 			if err != nil {
 				return "", err
 			}
@@ -57,7 +57,7 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 
 			tail := params[2]
 			head := params[3]
-			if e, err := e.cli.GetEdge(ctx, tail, head); err != nil {
+			if e, err := e.Client.GetEdge(ctx, tail, head); err != nil {
 				return "", err
 			} else {
 				return fmt.Sprintf("%f", e), nil
@@ -83,42 +83,42 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 				return "", ErrGetGraph
 			}
 
-			g, err := e.cli.Illuminate(ctx, seed, step, k, tfidf)
+			g, err := e.Client.Illuminate(ctx, seed, step, k, tfidf)
 			if err != nil {
 				return "", err
 			}
 
 			switch params[2] {
 			case "neighbor":
-				if jsonString, err := json.Marshal(g); err != nil {
+				if jsonString, err := json.MarshalIndent(g, "", "\t"); err != nil {
 					return "", err
 				} else {
 					return string(jsonString), nil
 				}
 			case "spt_cost":
 				g := g.ShortestPathTree(seed, func(x float32) float32 { return x })
-				if jsonString, err := json.Marshal(g); err != nil {
+				if jsonString, err := json.MarshalIndent(g, "", "\t"); err != nil {
 					return "", err
 				} else {
 					return string(jsonString), nil
 				}
 			case "spt_relevance":
 				g := g.ShortestPathTree(seed, func(x float32) float32 { return 1 / x })
-				if jsonString, err := json.Marshal(g); err != nil {
+				if jsonString, err := json.MarshalIndent(g, "", "\t"); err != nil {
 					return "", err
 				} else {
 					return string(jsonString), nil
 				}
 			case "msp_cost":
 				g := g.MinimumSpanningTree(seed, false)
-				if jsonString, err := json.Marshal(g); err != nil {
+				if jsonString, err := json.MarshalIndent(g, "", "\t"); err != nil {
 					return "", err
 				} else {
 					return string(jsonString), nil
 				}
 			case "msp_relevance":
 				g := g.MinimumSpanningTree(seed, true)
-				if jsonString, err := json.Marshal(g); err != nil {
+				if jsonString, err := json.MarshalIndent(g, "", "\t"); err != nil {
 					return "", err
 				} else {
 					return string(jsonString), nil
@@ -155,7 +155,7 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 			if err != nil {
 				return "", ErrPutVertex
 			}
-			if err := e.cli.PutVertex(ctx, key, value, time.Duration(ttl)*time.Second); err != nil {
+			if err := e.Client.PutVertex(ctx, key, value, time.Duration(ttl)*time.Second); err != nil {
 				return "", ErrPutVertex
 			}
 		default:
@@ -180,7 +180,7 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 				return "", ErrAddEdge
 			}
 
-			if err := e.cli.AddEdge(ctx, tail, head, float32(value), time.Duration(ttl)*time.Second); err != nil {
+			if err := e.Client.AddEdge(ctx, tail, head, float32(value), time.Duration(ttl)*time.Second); err != nil {
 				return "", err
 			}
 		default:
@@ -190,5 +190,5 @@ func (e *QueryExecutor) Execute(ctx context.Context, query string) (string, erro
 		return "", ErrInvalidQuery
 
 	}
-	return "", ErrInvalidQuery
+	return "", nil
 }

@@ -4,7 +4,9 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"github.com/anaregdesign/lantern-cli/query"
 	"github.com/manifoldco/promptui"
 	"log"
 	"os"
@@ -32,7 +34,9 @@ to quickly create a Cobra application.`,
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
 		cli, err := client.NewLantern(host, port)
+		exec := query.Executor{Client: cli}
 		if err != nil {
 			return err
 		}
@@ -56,7 +60,14 @@ to quickly create a Cobra application.`,
 				return nil
 
 			default:
-				fmt.Printf("You choose %q\n", result)
+				s, err := exec.Execute(ctx, result)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				if s != "" {
+					fmt.Println(s)
+				}
 			}
 		}
 	},
