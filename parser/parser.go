@@ -200,7 +200,7 @@ func PutVertexParam(s *Source) (*PutVertex, error) {
 	if m.Value, err = Value(s); err != nil {
 		return nil, err
 	}
-	if err := EOF(s); err != nil {
+	if err := EOF(s); err == nil {
 		m.TTL = 24 * 365 * time.Hour
 		return m, nil
 	}
@@ -226,7 +226,7 @@ func PutEdgeParam(s *Source) (*PutEdge, error) {
 	if m.Weight, err = Float32(s); err != nil {
 		return nil, err
 	}
-	if err := EOF(s); err != nil {
+	if err := EOF(s); err == nil {
 		m.TTL = 24 * 365 * time.Hour
 		return m, nil
 	}
@@ -251,7 +251,7 @@ func AddEdgeParam(s *Source) (*AddEdge, error) {
 	if m.Weight, err = Float32(s); err != nil {
 		return nil, err
 	}
-	if err := EOF(s); err != nil {
+	if err := EOF(s); err == nil {
 		m.TTL = 24 * 365 * time.Hour
 		return m, nil
 	}
