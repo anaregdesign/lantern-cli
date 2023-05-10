@@ -6,7 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/anaregdesign/lantern-cli/query"
+	"github.com/anaregdesign/lantern-cli/parser"
 	"github.com/manifoldco/promptui"
 	"log"
 	"os"
@@ -36,7 +36,7 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		cli, err := client.NewLantern(host, port)
-		exec := query.Executor{Client: cli}
+		exec := parser.Executor{Client: cli}
 		if err != nil {
 			return err
 		}

@@ -1,4 +1,4 @@
-package query
+package parser
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var ErrInvalidQuery = errors.New("invalid query")
+var ErrInvalidQuery = errors.New("invalid parser")
 
 var ErrGetVertex = errors.New("error, Usage: get vertex <key>")
 
