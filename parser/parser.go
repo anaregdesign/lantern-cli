@@ -10,6 +10,7 @@ var (
 	Verbs = []string{
 		"get",
 		"put",
+		"add",
 		"delete",
 		"illuminate",
 	}
@@ -26,8 +27,16 @@ var (
 		"mst_cost",
 	}
 
-	ErrOutOfChoice = errors.New("out of choice")
+	ErrNotFound = errors.New("not found")
+	ErrNotEOF   = errors.New("not EOF")
 )
+
+func EOF(s *Source) error {
+	if s.HasNext() {
+		return ErrNotEOF
+	}
+	return nil
+}
 
 func String(s *Source) (string, error) {
 	defer s.Next()
@@ -140,7 +149,7 @@ func AnyOf(s *Source, choices []string) (string, error) {
 			return str, nil
 		}
 	}
-	return "", ErrOutOfChoice
+	return "", ErrNotFound
 }
 
 func Verb(s *Source) (string, error) {
@@ -161,6 +170,9 @@ func GetVertexParam(s *Source) (*GetVertex, error) {
 	if m.Key, err = String(s); err != nil {
 		return nil, err
 	}
+	if err := EOF(s); err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 
@@ -171,6 +183,9 @@ func GetEdgeParam(s *Source) (*GetEdge, error) {
 		return nil, err
 	}
 	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	if err := EOF(s); err != nil {
 		return nil, err
 	}
 	return m, nil
@@ -188,6 +203,10 @@ func PutVertexParam(s *Source) (*PutVertex, error) {
 	if m.TTL, err = Duration(s); err != nil {
 		return nil, err
 	}
+	if err := EOF(s); err != nil {
+		return nil, err
+	}
+
 	return m, nil
 }
 
@@ -204,6 +223,9 @@ func PutEdgeParam(s *Source) (*PutEdge, error) {
 		return nil, err
 	}
 	if m.TTL, err = Duration(s); err != nil {
+		return nil, err
+	}
+	if err := EOF(s); err != nil {
 		return nil, err
 	}
 	return m, nil
@@ -224,12 +246,18 @@ func AddEdgeParam(s *Source) (*AddEdge, error) {
 	if m.TTL, err = Duration(s); err != nil {
 		return nil, err
 	}
+	if err := EOF(s); err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 func DeleteVertexParam(s *Source) (*DeleteVertex, error) {
 	var err error
 	m := &DeleteVertex{}
 	if m.Key, err = String(s); err != nil {
+		return nil, err
+	}
+	if err := EOF(s); err != nil {
 		return nil, err
 	}
 	return m, nil
@@ -242,6 +270,9 @@ func DeleteEdgeParam(s *Source) (*DeleteEdge, error) {
 		return nil, err
 	}
 	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	if err := EOF(s); err != nil {
 		return nil, err
 	}
 	return m, nil

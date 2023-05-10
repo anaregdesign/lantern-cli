@@ -18,6 +18,12 @@ type CLIService struct {
 	client *client.Lantern
 }
 
+func NewCLIService(client *client.Lantern) *CLIService {
+	return &CLIService{
+		client: client,
+	}
+}
+
 func (c *CLIService) Run(ctx context.Context, str string) error {
 	s := parser.NewSource(str)
 	verb, err := parser.Verb(s)
