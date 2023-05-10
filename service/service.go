@@ -38,28 +38,30 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 	s := parser.NewSource(str)
 	verb, err := parser.Verb(s)
 	if err != nil {
+		fmt.Printf("Error: %s\n", err)
 		return ErrInvalidVerb
 	}
 	switch verb {
 	case "get":
 		obj, err := parser.Objective(s)
 		if err != nil {
+			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
 		switch obj {
 		case "vertex":
 			p, err := parser.GetVertexParam(s)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrGetVertex
 			}
 			v, err := c.client.GetVertex(ctx, p.Key)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrConnection
 			}
 			if jsonString, err := json.Marshal(v.Value); err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrGetVertex
 			} else {
 				fmt.Println(string(jsonString))
@@ -68,12 +70,12 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		case "edge":
 			p, err := parser.GetEdgeParam(s)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrGetEdge
 			}
 			weight, err := c.client.GetEdge(ctx, p.Tail, p.Head)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrConnection
 			}
 			fmt.Printf("%f\n", weight)
@@ -85,17 +87,18 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 	case "add":
 		obj, err := parser.Objective(s)
 		if err != nil {
+			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
 		switch obj {
 		case "edge":
 			p, err := parser.AddEdgeParam(s)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrAddEdge
 			}
 			if err := c.client.AddEdge(ctx, p.Tail, p.Head, p.Weight, p.TTL); err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrConnection
 			}
 			return nil
@@ -105,34 +108,64 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 	case "put":
 		obj, err := parser.Objective(s)
 		if err != nil {
+			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
 		switch obj {
 		case "vertex":
 			p, err := parser.PutVertexParam(s)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrPutVertex
 			}
 			if err := c.client.PutVertex(ctx, p.Key, p.Value, p.TTL); err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				return ErrConnection
 			}
 			return nil
 		case "edge":
-			return ErrNotImplemented
+			p, err := parser.PutEdgeParam(s)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrPutEdge
+			}
+			if err := c.client.PutEdge(ctx, p.Tail, p.Head, p.Weight, p.TTL); err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrConnection
+			}
+			return nil
 		}
 
 	case "delete":
 		obj, err := parser.Objective(s)
 		if err != nil {
+			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
 		switch obj {
 		case "vertex":
-			return ErrNotImplemented
+			p, err := parser.DeleteVertexParam(s)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrDeleteVertex
+			}
+			if err := c.client.DeleteVertex(ctx, p.Key); err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrConnection
+			}
+			return nil
+
 		case "edge":
-			return ErrNotImplemented
+			p, err := parser.DeleteEdgeParam(s)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrDeleteEdge
+			}
+			if err := c.client.DeleteEdge(ctx, p.Tail, p.Head); err != nil {
+				fmt.Printf("Error: %s\n", err)
+				return ErrConnection
+			}
+			return nil
 		default:
 			return ErrInvalidObjective
 		}
@@ -140,17 +173,17 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 	case "illuminate":
 		obj, err := parser.IlluminateObjective(s)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
 		p, err := parser.IlluminateParam(s)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			return ErrIlluminate
 		}
 		g, err := c.client.Illuminate(ctx, p.Seed, p.Step, p.K, p.Tfidf)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			return ErrConnection
 		}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"log"
 	"os"
+	"time"
 
 	"github.com/anaregdesign/lantern/client"
 	"github.com/spf13/cobra"
@@ -62,9 +63,12 @@ to quickly create a Cobra application.`,
 				return nil
 
 			default:
+				start := time.Now()
 				err := srv.Run(ctx, result)
+				end := time.Now()
 				switch err {
 				case nil:
+					fmt.Printf("OK (%v)\n", end.Sub(start))
 				case service.ErrGetVertex:
 					fmt.Println("Usage: get vertex <key: string>")
 				case service.ErrGetEdge:
@@ -89,10 +93,10 @@ to quickly create a Cobra application.`,
 					fmt.Println("Usage: illuminate { neighbor | spt_relevance | spt_cost | msp_relevance | msp_cost } <seed: string> <step: int> <k: int> <tfidf: bool>")
 
 				case service.ErrInvalidVerb:
-					fmt.Println("Usage: { get | put | add | illuminate } ...")
+					fmt.Println("Usage: { get | put | delete | add | illuminate } ...")
 
 				case service.ErrInvalidObjective:
-					fmt.Println("{\n\tget { vertex | edge } | \n\tput { vertex | edge } | \n\tadd edge | \n\tilluminate { neighbor | spt_relevance | spt_cost | msp_relevance | msp_cost}\n} ...\nspt: shortest path tree\nmsp: minimum spanning tree")
+					fmt.Println("{\n\tget { vertex | edge } | \n\tput { vertex | edge } | \n\tdelete { vertex | edge } | \n\tadd edge | \n\tilluminate { neighbor | spt_relevance | spt_cost | msp_relevance | msp_cost }\n} ...\nspt: shortest path tree\nmsp: minimum spanning tree")
 
 				case service.ErrConnection:
 					fmt.Println("server error")
