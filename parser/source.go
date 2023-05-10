@@ -16,7 +16,10 @@ type Source struct {
 }
 
 func NewSource(str string) *Source {
-	s := strings.Split(str, " ")
+	var ss string
+	ss = strings.ToLower(str)
+	ss = strings.TrimSpace(ss)
+	s := strings.Split(ss, " ")
 	return &Source{
 		s:      s,
 		pos:    0,
