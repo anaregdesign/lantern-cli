@@ -18,7 +18,7 @@ var ErrGetVertex = errors.New("error, Usage: get vertex <key>")
 var ErrGetEdge = errors.New("error, Usage: get edge <from> <to>")
 var ErrPutVertex = errors.New("error, Usage: put vertex <key> <value> <ttl>")
 var ErrAddEdge = errors.New("error, Usage: add edge <from> <to> <ttl>")
-var ErrGetGraph = errors.New("error, Usage: get graph <neighbor|spt_cost|spt_relevance> <seed> <step> <k> <tfidf>")
+var ErrGetGraph = errors.New("error, Usage: get graph <neighbor|spt_cost|spt_relevance> <seed> <step> <k> <Tfidf>")
 
 type Executor struct {
 	Client *client.Lantern

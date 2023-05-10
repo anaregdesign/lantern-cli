@@ -26,11 +26,7 @@ var (
 		"mst_cost",
 	}
 
-	ErrInvalidVerb      = errors.New("invalid verb")
-	ErrInvalidObjective = errors.New("invalid objective")
-
 	ErrOutOfChoice = errors.New("out of choice")
-	ErrInvalidArg  = errors.New("invalid arg")
 )
 
 func String(s *Source) (string, error) {
@@ -116,6 +112,23 @@ func Value(s *Source) (interface{}, error) {
 	return str, nil
 }
 
+func Duration(s *Source) (time.Duration, error) {
+	defer s.Next()
+	i, err := Integer(s)
+	if err != nil {
+		return 0, err
+	}
+	return time.Duration(i) * time.Second, nil
+}
+
+func Float32(s *Source) (float32, error) {
+	v, err := Float(s)
+	if err != nil {
+		return 0, err
+	}
+	return float32(v), nil
+}
+
 func AnyOf(s *Source, choices []string) (string, error) {
 	defer s.Next()
 	str, err := s.Peek()
@@ -140,4 +153,115 @@ func Objective(s *Source) (string, error) {
 
 func IlluminateObjective(s *Source) (string, error) {
 	return AnyOf(s, IlluminateObjectives)
+}
+
+func GetVertexParam(s *Source) (*GetVertex, error) {
+	var err error
+	m := &GetVertex{}
+	if m.Key, err = String(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func GetEdgeParam(s *Source) (*GetEdge, error) {
+	var err error
+	m := &GetEdge{}
+	if m.Tail, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func PutVertexParam(s *Source) (*PutVertex, error) {
+	var err error
+	m := &PutVertex{}
+	if m.Key, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Value, err = Value(s); err != nil {
+		return nil, err
+	}
+	if m.TTL, err = Duration(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func PutEdgeParam(s *Source) (*PutEdge, error) {
+	var err error
+	m := &PutEdge{}
+	if m.Tail, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Weight, err = Float32(s); err != nil {
+		return nil, err
+	}
+	if m.TTL, err = Duration(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func AddEdgeParam(s *Source) (*AddEdge, error) {
+	var err error
+	m := &AddEdge{}
+	if m.Tail, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Weight, err = Float32(s); err != nil {
+		return nil, err
+	}
+	if m.TTL, err = Duration(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+func DeleteVertexParam(s *Source) (*DeleteVertex, error) {
+	var err error
+	m := &DeleteVertex{}
+	if m.Key, err = String(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func DeleteEdgeParam(s *Source) (*DeleteEdge, error) {
+	var err error
+	m := &DeleteEdge{}
+	if m.Tail, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Head, err = String(s); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func IlluminateParam(s *Source) (*Illuminate, error) {
+	var err error
+	m := &Illuminate{}
+	if m.Seed, err = String(s); err != nil {
+		return nil, err
+	}
+	if m.Step, err = Integer(s); err != nil {
+		return nil, err
+	}
+	if m.K, err = Integer(s); err != nil {
+		return nil, err
+	}
+	if m.Tfidf, err = Bool(s); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
