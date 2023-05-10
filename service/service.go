@@ -3,15 +3,25 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/anaregdesign/lantern-cli/parser"
 	"github.com/anaregdesign/lantern/client"
 )
 
 var (
-	ErrInvalidObjective = fmt.Errorf("invalid objective")
-	ErrInvalidVerb      = fmt.Errorf("invalid verb")
-	ErrNotImplemented   = fmt.Errorf("not implemented")
+	ErrInvalidObjective = errors.New("invalid objective")
+	ErrInvalidVerb      = errors.New("invalid verb")
+	ErrNotImplemented   = errors.New("not implemented")
+	ErrGetVertex        = errors.New("get vertex error")
+	ErrGetEdge          = errors.New("get edge error")
+	ErrPutVertex        = errors.New("put vertex error")
+	ErrPutEdge          = errors.New("put edge error")
+	ErrDeleteVertex     = errors.New("delete vertex error")
+	ErrDeleteEdge       = errors.New("delete edge error")
+	ErrAddEdge          = errors.New("add edge error")
+	ErrIlluminate       = errors.New("illuminate error")
+	ErrConnection       = errors.New("connection error")
 )
 
 type CLIService struct {
@@ -40,14 +50,17 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		case "vertex":
 			p, err := parser.GetVertexParam(s)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrGetVertex
 			}
 			v, err := c.client.GetVertex(ctx, p.Key)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrConnection
 			}
 			if jsonString, err := json.Marshal(v.Value); err != nil {
-				return err
+				fmt.Println(err)
+				return ErrGetVertex
 			} else {
 				fmt.Println(string(jsonString))
 				return nil
@@ -55,11 +68,13 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		case "edge":
 			p, err := parser.GetEdgeParam(s)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrGetEdge
 			}
 			weight, err := c.client.GetEdge(ctx, p.Tail, p.Head)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrConnection
 			}
 			fmt.Printf("%f\n", weight)
 			return nil
@@ -76,10 +91,12 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		case "edge":
 			p, err := parser.AddEdgeParam(s)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrAddEdge
 			}
 			if err := c.client.AddEdge(ctx, p.Tail, p.Head, p.Weight, p.TTL); err != nil {
-				return err
+				fmt.Println(err)
+				return ErrConnection
 			}
 			return nil
 		default:
@@ -94,10 +111,12 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		case "vertex":
 			p, err := parser.PutVertexParam(s)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return ErrPutVertex
 			}
 			if err := c.client.PutVertex(ctx, p.Key, p.Value, p.TTL); err != nil {
-				return err
+				fmt.Println(err)
+				return ErrConnection
 			}
 			return nil
 		case "edge":
@@ -121,15 +140,18 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 	case "illuminate":
 		obj, err := parser.IlluminateObjective(s)
 		if err != nil {
-			return err
+			fmt.Println(err)
+			return ErrInvalidObjective
 		}
 		p, err := parser.IlluminateParam(s)
 		if err != nil {
-			return err
+			fmt.Println(err)
+			return ErrIlluminate
 		}
 		g, err := c.client.Illuminate(ctx, p.Seed, p.Step, p.K, p.Tfidf)
 		if err != nil {
-			return err
+			fmt.Println(err)
+			return ErrConnection
 		}
 
 		switch obj {

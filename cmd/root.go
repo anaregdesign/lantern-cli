@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"github.com/anaregdesign/lantern-cli/service"
 	"github.com/manifoldco/promptui"
 	"log"
@@ -62,8 +63,42 @@ to quickly create a Cobra application.`,
 
 			default:
 				err := srv.Run(ctx, result)
-				if err != nil {
-					log.Fatal(err)
+				switch err {
+				case nil:
+				case service.ErrGetVertex:
+					fmt.Println("Usage: get vertex <key: string>")
+				case service.ErrGetEdge:
+					fmt.Println("Usage: get edge <tail: string> <head: string>")
+
+				case service.ErrPutVertex:
+					fmt.Println("Usage: put vertex <key: string> <value: string> [<ttl_seconds: int>]")
+
+				case service.ErrPutEdge:
+					fmt.Println("Usage: put edge <tail: string> <head: string> <weight: float> [<ttl_seconds: int>]")
+
+				case service.ErrDeleteVertex:
+					fmt.Println("Usage: delete vertex <key: string>")
+
+				case service.ErrDeleteEdge:
+					fmt.Println("Usage: delete edge <tail: string> <head: string>")
+
+				case service.ErrAddEdge:
+					fmt.Println("Usage: add edge <tail: string> <head: string> <weight: float> [<ttl_seconds: int>]")
+
+				case service.ErrIlluminate:
+					fmt.Println("Usage: illuminate { neighbor | spt_relevance | spt_cost | msp_relevance | msp_cost } <seed: string> <step: int> <k: int> <tfidf: bool>")
+
+				case service.ErrInvalidVerb:
+					fmt.Println("Usage: { get | put | add | illuminate } ...")
+
+				case service.ErrInvalidObjective:
+					fmt.Println("{\n\tget { vertex | edge } | \n\tput { vertex | edge } | \n\tadd edge | \n\tilluminate { neighbor | spt_relevance | spt_cost | msp_relevance | msp_cost}\n} ...\nspt: shortest path tree\nmsp: minimum spanning tree")
+
+				case service.ErrConnection:
+					fmt.Println("server error")
+
+				default:
+					fmt.Println(err)
 				}
 			}
 		}
