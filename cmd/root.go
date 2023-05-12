@@ -1,11 +1,9 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"context"
 	"fmt"
+	"github.com/anaregdesign/lantern-cli/parser"
 	"github.com/anaregdesign/lantern-cli/service"
 	"github.com/manifoldco/promptui"
 	"log"
@@ -24,16 +22,9 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "lantern-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "A CLI for Lantern",
+	Long:  `A CLI for Lantern. `,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		cli, err := client.NewLantern(host, port)
@@ -48,11 +39,19 @@ to quickly create a Cobra application.`,
 			}
 		}()
 
-		for {
-			prompt := promptui.Prompt{
-				Label: ">",
-			}
+		template := &promptui.PromptTemplates{
+			Prompt:  "{{ . }} ",
+			Valid:   "{{ . | green }} ",
+			Invalid: "{{ . | red }} ",
+			Success: "{{ . | bold }} ",
+		}
+		prompt := promptui.Prompt{
+			Label:     ">",
+			Validate:  parser.Validate,
+			Templates: template,
+		}
 
+		for {
 			result, err := prompt.Run()
 			if err != nil {
 				return err
@@ -109,8 +108,6 @@ to quickly create a Cobra application.`,
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {

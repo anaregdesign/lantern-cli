@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/anaregdesign/lantern-cli/parser"
 	"github.com/anaregdesign/lantern/client"
+	"strings"
 )
 
 var (
@@ -41,14 +42,14 @@ func (c *CLIService) Run(ctx context.Context, str string) error {
 		fmt.Printf("Error: %s\n", err)
 		return ErrInvalidVerb
 	}
-	switch verb {
+	switch strings.ToLower(verb) {
 	case "get":
 		obj, err := parser.Objective(s)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
 			return ErrInvalidObjective
 		}
-		switch obj {
+		switch strings.ToLower(obj) {
 		case "vertex":
 			p, err := parser.GetVertexParam(s)
 			if err != nil {
