@@ -3,13 +3,13 @@ module github.com/anaregdesign/lantern-cli
 go 1.20
 
 require (
-	github.com/anaregdesign/lantern v0.4.0
+	github.com/anaregdesign/lantern v0.4.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/cobra v1.7.0
 )
 
 require (
-	github.com/anaregdesign/lantern-proto v0.4.0 // indirect
+	github.com/anaregdesign/lantern-proto v0.4.1 // indirect
 	github.com/anaregdesign/papaya v0.4.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

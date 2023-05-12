@@ -13,6 +13,7 @@ var (
 		"add",
 		"delete",
 		"illuminate",
+		"exit",
 	}
 
 	Objectives = []string{
